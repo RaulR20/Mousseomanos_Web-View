@@ -1,0 +1,37 @@
+# Stack local "parecida com produção": Postgres + backend (perfil prod) + frontend (nginx).
+# Uso: docker compose up --build   ->   http://localhost:8081
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: mousseomanos
+      POSTGRES_USER: mousseomanos
+      POSTGRES_PASSWORD: mousseomanos
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mousseomanos"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/mousseomanos
+      SPRING_DATASOURCE_USERNAME: mousseomanos
+      SPRING_DATASOURCE_PASSWORD: mousseomanos
+    # As chaves do Google Maps vêm de backend/.env (veja backend/.env.example).
+    env_file:
+      - path: ./backend/.env
+        required: false
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      BACKEND_URL: http://backend:8080
+    ports:
+      - "8081:80"
+    depends_on:
+      - backend

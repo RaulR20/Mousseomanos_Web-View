@@ -1,0 +1,21 @@
+<form class="search" (ngSubmit)="searchByAddress()">
+  <input
+    type="text"
+    name="address"
+    [(ngModel)]="address"
+    placeholder="Endereço ou CEP"
+    aria-label="Endereço ou CEP"
+  />
+  <button type="submit" [disabled]="loading()">Buscar</button>
+  <button type="button" (click)="searchByMyLocation()" [disabled]="loading()">Usar minha localização</button>
+</form>
+
+@if (loading()) {
+  <p class="status">Buscando...</p>
+}
+
+@if (message(); as text) {
+  <p class="message" role="alert">{{ text }}</p>
+}
+
+<div #map class="map"></div>

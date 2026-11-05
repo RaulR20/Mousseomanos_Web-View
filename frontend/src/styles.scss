@@ -1,1 +1,46 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --bg: #0e0a09;
+  --surface: #1a1210;
+  --border: #3b2a22;
+  --text: #f5e9da;
+  --muted: #b9a592;
+  --yellow: #ffc107;
+  --ember: #e63b1f;
+  --radius: 12px;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Balão que abre ao clicar em um pin (fica fora do componente, dentro do mapa do Google). */
+.pin-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 4px 0 0;
+  color: #2a1a12;
+
+  strong {
+    font-size: 1rem;
+  }
+
+  span {
+    font-size: 0.85rem;
+    color: #6b4a36;
+  }
+}

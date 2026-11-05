@@ -1,0 +1,51 @@
+# Segredos e configuração local (nunca versionar). Os modelos .env.example são versionados.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Backend (Java / Maven)
+target/
+*.class
+*.jar
+*.log
+hs_err_pid*
+
+# Frontend (Angular / Node)
+node_modules/
+dist/
+out-tsc/
+.angular/
+coverage/
+npm-debug.log*
+yarn-error.log*
+
+# Banco local (H2 em arquivo, se usado)
+*.mv.db
+*.trace.db
+
+# IDEs e editores
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.classpath
+.project
+.settings/
+.factorypath
+.sts4/
+*.swp
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos temporários
+*.tmp
+*.bak

@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: backend
+  config:
+    # Em desenvolvimento, lê backend/.env (formato CHAVE=valor), se existir. Não versionado.
+    import: optional:file:.env[.properties]
+  profiles:
+    default: dev
+  jpa:
+    open-in-view: false
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  google:
+    # Chave de SERVIDOR do Google Maps Platform com a "Places API (New)" habilitada. Nunca versionar.
+    maps-api-key: ${GOOGLE_MAPS_API_KEY:}
+    # Chave de NAVEGADOR (Maps JavaScript API + Geocoding API), restrita por domínio. Entregue em /api/config.
+    maps-browser-key: ${GOOGLE_MAPS_BROWSER_KEY:}
+  cors:
+    # Origens separadas por vírgula. Em produção o front costuma ficar na mesma origem
+    # (nginx faz proxy de /api), então normalmente isso fica vazio.
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:4200}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:mem:mousseomanos;DB_CLOSE_DELAY=-1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  h2:
+    console:
+      enabled: true
+
+---
+# Perfil de produção: ative com SPRING_PROFILES_ACTIVE=prod.
+# Conexão via variáveis de ambiente (binding relaxado do Spring):
+#   SPRING_DATASOURCE_URL  ex.: jdbc:postgresql://<host>:5432/<db>?sslmode=require
+#   SPRING_DATASOURCE_USERNAME
+#   SPRING_DATASOURCE_PASSWORD
+spring:
+  config:
+    activate:
+      on-profile: prod
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never

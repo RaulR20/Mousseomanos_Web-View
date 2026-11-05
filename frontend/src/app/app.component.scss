@@ -1,0 +1,21 @@
+.app-header {
+  padding: 2rem 1.5rem 0.5rem;
+  text-align: center;
+
+  h1 {
+    margin: 0;
+    font-family: 'Arial Black', 'Segoe UI Black', 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-wrap: balance;
+    color: var(--yellow);
+  }
+}
+
+main {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  padding: 1rem 1.5rem 2rem;
+}
