@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.mousseomanos</groupId>
 	<artifactId>backend</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>backend</name>
 	<description/>
 	<url/>
@@ -138,5 +138,87 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!--
+			Empacota o frontend (Angular) dentro do jar: compila ../frontend e copia o resultado para
+			classes/static, que o Spring Boot serve em "/". Ativo por padrão; desative com -DskipFrontend.
+		-->
+		<profile>
+			<id>bundle-frontend</id>
+			<activation>
+				<property>
+					<name>!skipFrontend</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.eirslett</groupId>
+						<artifactId>frontend-maven-plugin</artifactId>
+						<version>1.15.1</version>
+						<configuration>
+							<installDirectory>${project.basedir}</installDirectory>
+							<workingDirectory>${project.basedir}/../frontend</workingDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<id>install-node-and-npm</id>
+								<goals>
+									<goal>install-node-and-npm</goal>
+								</goals>
+								<phase>prepare-package</phase>
+								<configuration>
+									<nodeVersion>v20.20.2</nodeVersion>
+									<npmVersion>10.8.2</npmVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm-install</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<phase>prepare-package</phase>
+								<configuration>
+									<arguments>install --no-audit --no-fund</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm-build</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<phase>prepare-package</phase>
+								<configuration>
+									<arguments>run build -- --configuration production</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-frontend</id>
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${project.basedir}/../frontend/dist/frontend/browser</directory>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>

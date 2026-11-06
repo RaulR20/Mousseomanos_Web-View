@@ -55,7 +55,7 @@ cd frontend && nvm use && npm install && npx ng serve
 ## Testes
 
 ```bash
-cd backend && ./mvnw verify
+cd backend && ./mvnw verify -DskipFrontend   # sem -DskipFrontend o Maven também compila o Angular
 cd frontend && npx ng test --watch=false --browsers=ChromeHeadless
 ```
 
@@ -63,9 +63,28 @@ cd frontend && npx ng test --watch=false --browsers=ChromeHeadless
 
 Nada no código depende de uma conta de nuvem específica; a configuração vem de variáveis de ambiente.
 
-### Backend (`backend/Dockerfile`)
+### Opção 1: um único jar com o front dentro (ex.: Azure App Service Java SE)
 
-Variáveis de ambiente:
+O `./mvnw package` compila o Angular (`frontend/`) e copia o resultado para `static/` dentro do jar, que o Spring Boot serve em `/`. O mesmo app responde a tela e a API (`/api`), sem CORS e sem nginx.
+
+```bash
+cd backend && ./mvnw package -DskipTests
+# gera backend/target/backend.jar, com o front incluído
+```
+
+- O `frontend-maven-plugin` baixa o Node 20 para `backend/node/` (ignorado pelo git); não precisa de Node instalado no pipeline.
+- O `npm install` usa o `package-lock.json` do front. O passo roda na fase `prepare-package`, então `spring-boot:run` e os testes não o executam.
+- Para gerar o jar **sem** o front (só API): `./mvnw package -DskipFrontend`.
+- No App Service: envie o `backend.jar` (o Java SE executa `app.jar`; no deploy por zip/OneDeploy `type=jar` o Azure renomeia) e defina as variáveis da tabela abaixo (`GOOGLE_MAPS_API_KEY`, `GOOGLE_MAPS_BROWSER_KEY`, `SPRING_PROFILES_ACTIVE=prod`). Inclua `https://<seu-app>.azurewebsites.net/*` nos referenciadores da chave de navegador.
+- Se o Angular ganhar rotas além de `/`, será preciso encaminhar essas rotas para `index.html` no Spring (recarregar a página em `/outra-rota` daria 404).
+
+### Opção 2: front e back separados (containers)
+
+#### Backend (`backend/Dockerfile`)
+
+O Dockerfile gera o jar **sem** o front (`-DskipFrontend`); o front vai na imagem separada abaixo.
+
+Variáveis de ambiente (valem também para a opção 1):
 
 | Variável                      | Descrição                                                                                                  |
 |-------------------------------|------------------------------------------------------------------------------------------------------------|
@@ -82,14 +101,14 @@ Variáveis de ambiente:
 - Health checks: `/actuator/health/liveness` e `/actuator/health/readiness`.
 - No perfil `prod`: sem console H2, `ddl-auto: none` (quando houver entidades, adicione Flyway/Liquibase) e respostas de erro sem mensagem nem stacktrace.
 
-### Frontend (`frontend/Dockerfile`)
+#### Frontend (`frontend/Dockerfile`)
 
 Build Angular de produção servido por nginx, com fallback de SPA, cache de arquivos com hash e gzip.
 O front chama sempre `/api/...` (caminho relativo); o nginx encaminha para `BACKEND_URL`
 (ex.: `https://meu-backend.azurewebsites.net`, sem caminho no final; padrão `http://backend:8080`),
 então o mesmo build serve para qualquer ambiente.
 
-### Stack local parecida com produção
+#### Stack local com containers
 
 ```bash
 docker compose up --build   # http://localhost:8081

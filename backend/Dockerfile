@@ -8,7 +8,7 @@ COPY mvnw pom.xml ./
 RUN --mount=type=cache,target=/root/.m2 ./mvnw -q -B dependency:go-offline
 
 COPY src src
-RUN --mount=type=cache,target=/root/.m2 ./mvnw -q -B package -DskipTests \
+RUN --mount=type=cache,target=/root/.m2 ./mvnw -q -B package -DskipTests -DskipFrontend \
     && java -Djarmode=tools -jar target/*.jar extract --layers --destination target/extracted
 
 FROM eclipse-temurin:21-jre AS runtime

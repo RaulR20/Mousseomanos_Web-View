@@ -14,6 +14,9 @@ target/
 *.log
 hs_err_pid*
 
+# Node baixado pelo frontend-maven-plugin
+backend/node/
+
 # Frontend (Angular / Node)
 node_modules/
 dist/
